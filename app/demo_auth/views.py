@@ -10,12 +10,10 @@ security = HTTPBasic()
 
 @router.get('/basic_auth')
 def demo_basic_auth_credentials(credentials: Annotated[HTTPBasicCredentials, Depends(security)]):
-    '''
-    Annotated - для группировки нескольких аннотаций.
-    HTTPBasic - класс который проверяет выполнен ли вход.
-    HTTPBasicCredentials - указан для получения credentials. Нужно указать что будет их предоставлять.
-    Depends(security) - говорим что security будет предоставлять данные аутентификации.
-    '''
+    # Annotated - для группировки нескольких аннотаций.
+    # HTTPBasic - класс который проверяет выполнен ли вход.
+    # HTTPBasicCredentials - указан для получения credentials. Нужно указать что будет их предоставлять.
+    # Depends(security) - говорим что security будет предоставлять данные аутентификации.
     return {
         'message': 'Hello!',
         'username': credentials.username,

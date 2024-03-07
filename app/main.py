@@ -1,19 +1,19 @@
 import uuid
-from typing import Annotated
-
 import uvicorn
-from fastapi import FastAPI, UploadFile, File, HTTPException, BackgroundTasks, Cookie, Form
-from fastapi.responses import FileResponse
-from fastapi import Cookie
-from pydantic import PositiveInt, EmailStr
-from starlette.responses import Response
 
-from app.fakes.fake_databases import generate_fake_users_db, generate_fake_products
-from app.views.products_views import router as products_router
-from schemas.base_models import AuthUser
+from fastapi import FastAPI, UploadFile, File, HTTPException, BackgroundTasks, Cookie, Form
+from fastapi import Cookie
+from starlette.responses import Response
+from app.schemas.base_models import AuthUser
+from app import router
+
+# -- перенесены в __init__.py для включения --
+# from app.views.products_views import router as products_router
+# from app.demo_auth.views import router as demo_auth_router
+
 
 app = FastAPI()
-app.include_router(products_router)  # подключен --> можем пользоваться
+app.include_router(router)  # подключение роутера из __init__.py к главному роутеру
 
 feedbacks = []
 users = []
