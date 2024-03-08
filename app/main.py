@@ -3,6 +3,7 @@ import uvicorn
 
 from fastapi import FastAPI, UploadFile, File, HTTPException, BackgroundTasks, Cookie, Form
 from fastapi import Cookie
+from starlette.requests import Request
 from starlette.responses import Response
 from app.schemas.base_models import AuthUser
 from app import router

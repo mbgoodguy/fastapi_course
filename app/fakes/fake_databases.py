@@ -22,9 +22,16 @@ ALPHABET = ascii_letters + digits
 def generate_fake_users_db(count_of_records) -> list:
     fake_db = []
 
-    for i in range(1, count_of_records):
+    for i in range(1, count_of_records + 1):
+        user_full_name = fake.name().split()
         # fake_db[i] = fake.name()
-        fake_user = {i: fake.name()}
+        fake_user = {
+            'user_id': i,
+            'age': random.randint(16, 25),
+            'first_name': user_full_name[0],
+            'middle_name': user_full_name[1],
+            'last_name': user_full_name[2],
+        }
         fake_db.append(fake_user)
 
     return fake_db

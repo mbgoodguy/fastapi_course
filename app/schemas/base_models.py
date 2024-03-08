@@ -6,9 +6,12 @@ from pydantic import BaseModel, Field, EmailStr
 
 
 class User(BaseModel):
-    id: int
+    user_id: int
     username: str
     age: int
+    first_name: str
+    middle_name: str
+    last_name: str
 
 
 class Feedback(BaseModel):

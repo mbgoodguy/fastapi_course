@@ -1,7 +1,7 @@
 import secrets
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, File
 from fastapi.security import HTTPBasicCredentials, HTTPBasic
 from starlette import status
 
@@ -37,14 +37,15 @@ def get_auth_user_username(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Invalid username or password",
         headers={"WWW-Authenticate": "Basic"}, # указываем что работаем с аутентификацией по Basic, чтобы браузер понял что можем залогиниться по BasicAuth
-        # headers={"WWW-Authenticate": "LOL"},
+        # headers={"WWW-Authenticate": "LOL"},  # можем установить любой заголовок :)
     )
     correct_password = usernames_to_passwords.get(credentials.username)
 
     if correct_password is None:
         raise unauthed_exc
 
-    # проверки паролей и других важных данных лучше делать через secrets
+    # проверки паролей и других важных данных лучше делать через secrets, т.к усложняет атаки по времени
+    # инфо: https://qapp.tech/help/timing-attack
     if not secrets.compare_digest(
         credentials.password.encode("utf-8"),
         correct_password.encode("utf-8"),
