@@ -1,4 +1,7 @@
 import uuid
+from datetime import datetime
+from typing import Any
+
 import uvicorn
 
 from fastapi import FastAPI, UploadFile, File, HTTPException, BackgroundTasks, Cookie, Form
@@ -18,30 +21,33 @@ app.include_router(router)  # подключение роутера из __init_
 
 feedbacks = []
 users = []
-sessions = {}
+COOKIES: dict[str, dict[str, Any]] = {}
 
 fake_auth_user: dict = {"username": "user@example.com", "password": "qqq"}
 fake_auth_users: list[AuthUser] = [AuthUser(**fake_auth_user)]
 
 
-@app.post('/login')
+# login_by_cookies
+@app.post('/login_cookie')
 async def login(response: Response, user_data: AuthUser):
     for fu in fake_auth_users:
         if fu.username == user_data.username and fu.password == user_data.password:
-            session_token = f'{uuid.uuid4()}'  # does not work if not str
-            sessions[session_token] = user_data
+            # session_token = f'{uuid.uuid4()}'  # does not work if not str.
+            session_token = f'{uuid.uuid4().hex}'  # for values without '-'
+            COOKIES[session_token] = user_data
             response.set_cookie(key='session_token', value=session_token, httponly=True)
-            print(session_token)
+            COOKIES['login_at']= datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+            print(f'Session token: {session_token}')
             print(user_data, type(user_data))
-            print(fake_auth_users)
-            print(sessions)
+            print(f'Fake auth users list: {fake_auth_users}')
+            print(f'COOKIES dict: {COOKIES}')
             return {'message': 'cookies has been set'}
     return {'message': 'ERROR! cookies has NOT been set'}
 
 
-@app.get("/cookie")
+@app.get("/get_cookie")
 async def get_cookies(session_token=Cookie()):
-    user = sessions.get(session_token)
+    user = COOKIES.get(session_token)
     if user:
         return user.model_dump()  # in pydantic v1 it was dict()
     else:
