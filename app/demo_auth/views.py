@@ -35,7 +35,7 @@ def get_auth_user_username(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Invalid username or password",
         headers={"WWW-Authenticate": "Basic"},
-        # указываем что работаем с аутентификацией по Basic, чтобы браузер понял что можем залогиниться по BasicAuth
+        # указываем что работаем с аутентификацией по Basic для отображения повторного приглашения для входа в систему
         # headers={"WWW-Authenticate": "LOL"},  # можем установить любой заголовок :)
     )
     correct_password = usernames_to_passwords.get(credentials.username)
