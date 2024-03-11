@@ -4,7 +4,8 @@ from fastapi import APIRouter, Header, HTTPException
 from starlette.requests import Request
 from starlette.responses import Response
 
-router = APIRouter(prefix='/homeworks', tags=['Homeworks'])
+router = APIRouter(prefix='/homeworks/3_3', tags=['Homeworks'])
+
 
 # можно объявить функцию для проверки наличия перечисленных заголовков в входящих заголовках
 def is_headers(headers: Request.headers):
@@ -19,6 +20,9 @@ def is_headers(headers: Request.headers):
 
 @router.get('/get')
 def get_headers(request: Request):
+    '''
+    Work with headers homework. Just get headers if they exist
+    '''
     is_headers(request.headers)
 
     response_data = {

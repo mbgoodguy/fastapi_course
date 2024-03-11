@@ -5,9 +5,10 @@ from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from pydantic import BaseModel
 from starlette import status
 
-router = APIRouter(prefix='/homeworks', tags=['Homeworks'])
+router = APIRouter(prefix='/homeworks/4_1', tags=['Homeworks'])
 security = HTTPBasic()
 
+#  HTTP Basic authentication homework
 
 class User(BaseModel):
     username: str
@@ -38,6 +39,9 @@ def authenticate_user(credentials: HTTPBasicCredentials = Depends(security)):
 
 @router.get('/protected_resource')
 def get_protected_resource(user: User = Depends(authenticate_user)):
+    '''
+    Basic authentication. Just use user1 as username and pass1 as password for authentication
+    '''
     return {"message": "You have access to the protected resource!", "user_info": user}
 
 
