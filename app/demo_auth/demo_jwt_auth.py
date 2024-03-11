@@ -35,13 +35,13 @@ def validate_auth_user(username: str = Form(), password: str = Form()):
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail='Invalid username or password'
     )
-    if not (user := users_db.get(username)):
+    if not (user := users_db.get(username)): # здесь присваиваем в переменную user юзера по username из users_db и сразу проверяем что он существует с помощью walrus operator
         raise unauthed_exc
 
-    if not auth_utils.validate_pwd(pwd=password, hashed_pwd=user.password):
+    if not auth_utils.validate_pwd(pwd=password, hashed_pwd=user.password):  # проверка на совпадение паролей (сырого в виде строки и хешированного)
         raise unauthed_exc
 
-    if not user.active:
+    if not user.active:  # чтобы запретить доступ к функционалу юзерам, у которых active=False
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail='User inactive'
@@ -52,12 +52,12 @@ def validate_auth_user(username: str = Form(), password: str = Form()):
 @router.post('/login', response_model=Token)
 def auth_user_issue_jwt(user: UserSchema = Depends(validate_auth_user)):
     jwt_payload = {
-        'sub': user.username,
+        'sub': user.username,  # вместо username мог быть id
         'username': user.username,
         'email': user.email,
     }
 
-    access_token = auth_utils.encode_jwt(jwt_payload)
+    access_token = auth_utils.encode_jwt(payload=jwt_payload)
 
     return Token(access_token=access_token,
                  token_type='Bearer')  # Bearer - тип который по умочланию исп-ем для подобных токенов

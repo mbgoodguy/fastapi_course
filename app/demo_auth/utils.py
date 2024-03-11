@@ -1,16 +1,8 @@
-import datetime
-from datetime import timedelta, datetime
-
 import bcrypt
-
 import jwt
-from core.config import settings
 
-SECRET_KEY = 'mysecretkey'
-ALGORITHM = 'HS256'
-USERS_DATA = [
-    {'username': 'admin', 'password': 'adminpass'},
-]
+from datetime import timedelta, datetime
+from core.config import settings
 
 
 def encode_jwt(
@@ -22,12 +14,13 @@ def encode_jwt(
 ):
     to_encode = payload.copy()
     now = datetime.utcnow()
+
     if expire_timedelta:
         expire = now + timedelta
     else:
         expire = now + timedelta(minutes=expire_minutes)
 
-    to_encode.update(exp=expire, iat=now)
+    to_encode.update(exp=expire, iat=now)  # добавляем в словарь ключ exp(когда истекает) и iat(когда выпущен)
     encoded = jwt.encode(to_encode, key, algorithm=algorithm)
 
     return encoded
