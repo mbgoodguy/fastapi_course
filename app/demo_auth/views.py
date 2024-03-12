@@ -3,8 +3,9 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, File, Header
 from fastapi.security import HTTPBasicCredentials, HTTPBasic
-from starlette import status
 from starlette.responses import Response
+
+from demo_auth.exceptions import unauthed_basic_exc, invalid_token_exc
 
 router = APIRouter(prefix='/demo_auth', tags=['Demo Auth'])  # роутер нужно подключить к приложению
 
@@ -31,17 +32,10 @@ usernames_to_passwords = {
 def get_auth_user_username(
         credentials: Annotated[HTTPBasicCredentials, Depends(HTTPBasic())],
 ) -> str:
-    unauthed_exc = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Invalid username or password",
-        headers={"WWW-Authenticate": "Basic"},
-        # указываем что работаем с аутентификацией по Basic для отображения повторного приглашения для входа в систему
-        # headers={"WWW-Authenticate": "LOL"},  # можем установить любой заголовок :)
-    )
     correct_password = usernames_to_passwords.get(credentials.username)
 
     if correct_password is None:
-        raise unauthed_exc
+        raise unauthed_basic_exc
 
     # проверки паролей и других важных данных лучше делать через secrets, т.к усложняет атаки по времени
     # инфо: https://qapp.tech/help/timing-attack
@@ -49,7 +43,7 @@ def get_auth_user_username(
             credentials.password.encode("utf-8"),
             correct_password.encode("utf-8"),
     ):
-        raise unauthed_exc
+        raise unauthed_basic_exc
 
     return credentials.username
 
@@ -82,13 +76,10 @@ def get_username_by_static_token(
             static_token):  # walrus operator означает присвоить значение переменной и вернуть это значение.
         return username
 
-    raise HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail='Token invalid'
-    )
+    raise invalid_token_exc
 
 
-@router.get("/auth_by_token")
+@router.get("/auth_by_static_token")
 def demo_auth_some_http_header(
         username: str = Depends(get_username_by_static_token),  # передан помощник
 ):

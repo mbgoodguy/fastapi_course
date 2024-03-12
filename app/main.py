@@ -6,10 +6,12 @@ import uvicorn
 
 from fastapi import FastAPI, UploadFile, File, HTTPException, BackgroundTasks, Cookie, Form
 from fastapi import Cookie
+from fastapi.security import OAuth2PasswordBearer
 from starlette.requests import Request
 from starlette.responses import Response
 from app.schemas.base_models import AuthUser
-from app import router
+from app import router as router_v1
+from core.config import settings
 
 # -- перенесены в __init__.py для включения --
 # from app.views.products_views import router as products_router
@@ -17,7 +19,8 @@ from app import router
 
 
 app = FastAPI()
-app.include_router(router)  # подключение роутера из __init__.py к главному роутеру
+app.include_router(router=router_v1, prefix=settings.api_v1_prefix)  # подключение роутера из __init__.py к главному роутеру
+
 
 feedbacks = []
 users = []
