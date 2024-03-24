@@ -1,17 +1,18 @@
 from fastapi import APIRouter, Depends, Form, HTTPException
-from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer, OAuth2PasswordBearer
+from fastapi.security import OAuth2PasswordBearer
 from jwt import InvalidTokenError
 from pydantic import BaseModel
 from starlette import status
 
+from demo_auth import utils as auth_utils
 from demo_auth.exceptions import inactive_exc, unauthed_exc
 from demo_auth.utils import decode_jwt
 from schemas.base_models import UserSchema
-from demo_auth import utils as auth_utils
 
 router = APIRouter(prefix='/jwt')
 # http_bearer = HTTPBearer()
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl='/api/v1/jwt/login')  # более простой способ автоматического получения токена без его ручного обновления
+oauth2_scheme = OAuth2PasswordBearer(
+    tokenUrl='/api/v1/jwt/login')  # более простой способ автоматического получения токена без его ручного обновления
 
 
 class Token(BaseModel):
@@ -52,20 +53,6 @@ def validate_auth_user(username: str = Form(), password: str = Form()):
     return user
 
 
-@router.post('/login', response_model=Token)
-def auth_user_issue_jwt(user: UserSchema = Depends(validate_auth_user)):
-    jwt_payload = {
-        'sub': user.username,  # вместо username мог быть id
-        'username': user.username,
-        'email': user.email,
-    }
-
-    access_token = auth_utils.encode_jwt(payload=jwt_payload)
-
-    return Token(access_token=access_token,
-                 token_type='Bearer')  # Bearer - тип который по умочланию исп-ем для подобных токенов
-
-
 # def get_curr_auth_user(token: str = Depends(http_bearer)) -> UserSchema:  # если оставить str - появится иконка авторизации по bearer
 # т.к ф-ия вернула нам payload, то меняем ее сигнатуру
 def get_curr_token_payload(
@@ -87,7 +74,7 @@ def get_curr_token_payload(
     except InvalidTokenError as e:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=f'Invalid token error {e}'
+            detail=f'Invalid token error: {e}'
         )
 
     return payload
@@ -110,6 +97,20 @@ def get_curr_active_auth_user(user: UserSchema = Depends(get_curr_auth_user)):
     if user.active:
         return user
     raise inactive_exc
+
+
+@router.post('/login', response_model=Token)
+def auth_user_issue_jwt(user: UserSchema = Depends(validate_auth_user)):
+    jwt_payload = {
+        'sub': user.username,  # вместо username мог быть id
+        'username': user.username,
+        'email': user.email,
+    }
+
+    access_token = auth_utils.encode_jwt(payload=jwt_payload)
+
+    return Token(access_token=access_token,
+                 token_type='Bearer')  # Bearer - тип который по умочланию исп-ем для подобных токенов
 
 
 @router.get('/me')
