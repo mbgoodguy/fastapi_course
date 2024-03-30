@@ -6,9 +6,10 @@ import uvicorn
 
 from fastapi import FastAPI, UploadFile, File, HTTPException, BackgroundTasks, Cookie, Form
 from fastapi import Cookie
+from fastapi.exceptions import RequestValidationError
 from fastapi.security import OAuth2PasswordBearer
 from starlette.requests import Request
-from starlette.responses import Response
+from starlette.responses import Response, JSONResponse
 from app.schemas.base_models import AuthUser
 from app import router as router_v1
 from core.config import settings
@@ -19,7 +20,12 @@ from core.config import settings
 
 
 app = FastAPI()
-app.include_router(router=router_v1, prefix=settings.api_v1_prefix)  # подключение роутера из __init__.py к главному роутеру
+app.include_router(router=router_v1)  # подключение роутера из __init__.py к главному роутеру
+# app.add_exception_handler(RequestValidationError, request_validation_handler)
+@app.exception_handler(RequestValidationError)
+def request_validation(request: Request, exc: RequestValidationError):
+    errors = [error.get('msg') for error in exc.errors()]
+    return JSONResponse(status_code=400, content={'errors': errors})
 
 
 feedbacks = []

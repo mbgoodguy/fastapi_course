@@ -15,6 +15,5 @@ class AuthJWT(BaseModel):
 
 class Settings(BaseSettings):
     auth_jwt: AuthJWT = AuthJWT()
-    api_v1_prefix: str = "/api/v1"
 
 settings = Settings()
