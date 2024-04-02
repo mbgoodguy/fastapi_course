@@ -94,7 +94,6 @@ async def add_user(user_data: UserPayload):
     db_user = UserResponse(id=next(gen_id), username=user_data.username, email=user_data.email)
 
     users_db[db_user.id] = db_user
-    print(db_user)
 
     return db_user
 
@@ -110,8 +109,6 @@ async def get_user(pk: int):
 async def delete_user(pk: int):
     check_user_get(pk)
     user = users_db[pk]
-    print(user)
-
     deleted = users_db.pop(pk).id
 
     return JSONResponse(

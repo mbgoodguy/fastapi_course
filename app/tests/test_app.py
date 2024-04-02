@@ -6,41 +6,6 @@ client = TestClient(app_7_1)
 
 
 class TestMain:
-    #
-    # @staticmethod
-    # def test_correct_reg_user():
-    #     response = client.post(
-    #         url='/user',
-    #         json={
-    #             "username": "1",
-    #             "email": "1@example.com",
-    #             "password": "string"
-    #         }
-    #     )
-    #     assert response.status_code == 200
-    #     assert response.json() == {
-    #         "username": "1",
-    #         "email": "1@example.com",
-    #         "id": 2
-    #     }
-    #
-    # @staticmethod
-    # def test_incorrect_reg_user():
-    #     response = client.post(
-    #         url='/user',
-    #         json={
-    #             "username": "1",
-    #             "email": "1@example.com",
-    #             "password": "string"
-    #         }
-    #     )
-    #     assert response.status_code == 409
-    #     assert response.json() == {
-    #         "errors": [
-    #             "NOT UNIQUE USERNAME OR EMAIL"
-    #         ]
-    #     }
-
     @staticmethod
     def test_correct_me():
         response = client.post(
