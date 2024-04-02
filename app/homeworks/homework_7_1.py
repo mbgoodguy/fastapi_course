@@ -21,12 +21,7 @@ class UserResponse(BaseModel):
     id: int
 
 
-users_db: dict[int, UserResponse] = {
-    1: UserResponse(
-        username='ABOBA',
-        email='abobus@gmail.com',
-        id=1)
-}
+users_db: dict = {}
 
 
 class UserNotExistExc(HTTPException):
@@ -127,11 +122,7 @@ async def delete_user(pk: int):
 
 @app.get('/users')
 async def get_users():
-    return [
-        {
-            key: value for key, value in users_db.items()
-        }
-    ]
+    return users_db
 
 if __name__ == "__main__":
     uvicorn.run('app.homeworks.homework_7_1:app', host="localhost", port=8000, reload=True)
