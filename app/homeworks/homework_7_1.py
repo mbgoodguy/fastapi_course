@@ -2,6 +2,7 @@ from typing import Optional
 
 import uvicorn
 from fastapi import FastAPI, HTTPException
+from fastapi.exceptions import RequestValidationError
 from pydantic import BaseModel, EmailStr
 from starlette import status
 from starlette.responses import JSONResponse
@@ -26,13 +27,19 @@ users_db: dict = {}
 
 class UserNotExistExc(HTTPException):
     def __init__(self, errors=list[str]):
-        super().__init__(status_code=status.HTTP_404_NOT_FOUND, detail='User not found')
+        super().__init__(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='User not found'
+        )
         self.errors = errors
 
 
 class UserExists_409(HTTPException):
     def __init__(self, message: Optional[str | None] = None, errors=list[str]):
-        super().__init__(status_code=status.HTTP_409_CONFLICT, detail='User already exists')
+        super().__init__(
+            status_code=status.HTTP_409_CONFLICT,
+            detail='User already exists',
+        )
         self.errors = errors
 
 
@@ -52,10 +59,27 @@ def user_exists_409_handler(request, exc):
     return JSONResponse(
         status_code=exc.status_code,
         content={
-            # 'detail': exc.detail,
+            'detail': exc.detail,
             'errors': exc.errors
         }
     )
+
+
+# 422 handler
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request, exc):
+    errors = []
+    for error in exc.errors():
+        field = error["loc"][-1]  # Имя поля
+        your_value = error.get("input", {})  # Значение поля, которое вызвало ошибку
+        value = your_value.get(field) if your_value else None
+        errors.append(
+            {
+                "field": field,
+                "message": 'Incorrect field name or syntax'  # Сообщение об ошибке
+            }
+        )
+    return JSONResponse(status_code=422, content={"errors": errors})
 
 
 def id_generator():
@@ -91,10 +115,9 @@ async def calculate_sum(a: int, b: int):
 @app.post('/user', response_model=UserResponse)
 async def add_user(user_data: UserPayload):
     check_user_exists(username=user_data.username, email=user_data.email)
+
     db_user = UserResponse(id=next(gen_id), username=user_data.username, email=user_data.email)
-
     users_db[db_user.id] = db_user
-
     return db_user
 
 
@@ -120,6 +143,7 @@ async def delete_user(pk: int):
 @app.get('/users')
 async def get_users():
     return users_db
+
 
 if __name__ == "__main__":
     uvicorn.run('app.homeworks.homework_7_1:app', host="localhost", port=8000, reload=True)
