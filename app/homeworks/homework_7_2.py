@@ -39,5 +39,22 @@ async def get_and_process_todos():
         return {"error": "Failed to fetch todos from the external API"}
 
 
+class SomeResourceClient:
+    def __init__(self, url: str):
+        self.url = url
+
+    def get_url_status_code(self):
+        status_code = requests.get(self.url).status_code
+        return status_code
+
+    def get_url_data(self):
+        if self.get_url_status_code() == 200:
+            url_data = requests.get(self.url).json()
+            return url_data
+        else:
+            return f'URL status code is invalid'
+
+
+#
 if __name__ == '__main__':
     uvicorn.run('app.homeworks.homework_7_2:app', reload=True)
